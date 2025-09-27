@@ -30,7 +30,7 @@ const Header = () => {
               <Waves className="h-6 w-6 text-primary-foreground animate-wave" />
             </div>
             <div>
-              <h1 className="text-xl font-bold data-gradient bg-clip-text text-transparent">AquaIntel</h1>
+              <h1 className="text-xl font-bold data-gradient bg-clip-text text-transparent">AquaNex</h1>
               <Badge variant="outline" className="text-xs bg-accent/10 text-accent border-accent/30 mt-1">
                 Marine Decision Support
               </Badge>
