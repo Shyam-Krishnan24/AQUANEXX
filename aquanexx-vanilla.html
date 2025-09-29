@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQUANEXX - Marine Decision Support Platform</title>
+    <meta name="description" content="Advanced marine data management and AI-powered decision support platform for real-time ocean monitoring, species tracking, and ecosystem analysis.">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Marine themed color system */
+            --background: hsl(210, 100%, 99%);
+            --foreground: hsl(220, 50%, 10%);
+            --card: hsl(0, 0%, 100%);
+            --card-foreground: hsl(220, 50%, 10%);
+            
+            /* Deep ocean blues */
+            --primary: hsl(214, 88%, 27%);
+            --primary-foreground: hsl(210, 100%, 98%);
+            --primary-glow: hsl(200, 100%, 45%);
+            
+            /* Ocean surface blues */
+            --secondary: hsl(200, 100%, 95%);
+            --secondary-foreground: hsl(214, 88%, 27%);
+            
+            --muted: hsl(210, 40%, 96%);
+            --muted-foreground: hsl(215, 25%, 50%);
+            
+            /* Aqua/teal accents */
+            --accent: hsl(188, 100%, 45%);
+            --accent-foreground: hsl(210, 100%, 98%);
+            
+            --border: hsl(214, 20%, 88%);
+            --radius: 0.5rem;
+            
+            /* Marine specific design tokens */
+            --ocean-deep: hsl(220, 85%, 15%);
+            --ocean-medium: hsl(214, 88%, 27%);
+            --ocean-light: hsl(200, 100%, 45%);
+            --ocean-surface: hsl(188, 100%, 90%);
+            --coral: hsl(14, 100%, 57%);
+            --seaweed: hsl(140, 100%, 25%);
+            
+            /* Shadows and glows */
+            --shadow-ocean: 0 10px 30px -10px hsla(220, 85%, 15%, 0.3);
+            --glow-data: 0 0 20px hsla(188, 100%, 45%, 0.4);
+            --glow-active: 0 0 30px hsla(200, 100%, 45%, 0.6);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(5px); }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .animate-wave {
+            animation: wave 4s ease-in-out infinite;
+        }
+
+        .ocean-gradient {
+            background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-medium));
+        }
+
+        .surface-gradient {
+            background: linear-gradient(180deg, var(--ocean-light), var(--ocean-surface));
+        }
+
+        .data-gradient {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+        }
+
+        /* Header Styles */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: hsla(210, 100%, 99%, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid hsla(200, 100%, 45%, 0.2);
+            box-shadow: var(--shadow-ocean);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-icon {
+            height: 2.5rem;
+            width: 2.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover .logo-icon {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: bold;
+            background: var(--data-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            background: hsla(188, 100%, 45%, 0.1);
+            color: var(--accent);
+            border: 1px solid hsla(188, 100%, 45%, 0.3);
+            margin-top: 0.25rem;
+        }
+
+        .nav {
+            display: none;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        @media (min-width: 1024px) {
+            .nav {
+                display: flex;
+            }
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--ocean-medium);
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+            background: hsla(188, 100%, 45%, 0.1);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .header-actions {
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            .header-actions {
+                display: flex;
+            }
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ghost {
+            color: var(--ocean-medium);
+            background: transparent;
+        }
+
+        .btn-ghost:hover {
+            color: var(--accent);
+            background: hsla(188, 100%, 45%, 0.1);
+        }
+
+        .btn-glow {
+            background: var(--data-gradient);
+            color: var(--primary-foreground);
+            box-shadow: var(--glow-data);
+        }
+
+        .btn-glow:hover {
+            box-shadow: var(--glow-active);
+            transform: translateY(-1px);
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+        }
+
+        .mobile-menu-btn {
+            display: block;
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            color: var(--ocean-medium);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-menu-btn {
+                display: none;
+            }
+        }
+
+        .mobile-menu-btn:hover {
+            color: var(--accent);
+            background: hsla(188, 100%, 45%, 0.1);
+        }
+
+        .mobile-menu {
+            display: none;
+            border-top: 1px solid hsla(200, 100%, 45%, 0.2);
+            padding: 1rem 0;
+            background: hsla(210, 100%, 99%, 0.95);
+            backdrop-filter: blur(12px);
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mobile-nav-link {
+            display: block;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--ocean-medium);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-nav-link:hover,
+        .mobile-nav-link.active {
+            color: var(--accent);
+            background: hsla(188, 100%, 45%, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="ocean" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23001122;stop-opacity:1" /><stop offset="50%" style="stop-color:%23003366;stop-opacity:1" /><stop offset="100%" style="stop-color:%2300aacc;stop-opacity:1" /></linearGradient></defs><rect width="100%" height="100%" fill="url(%23ocean)"/></svg>') center/cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--ocean-deep), var(--ocean-medium));
+            opacity: 0.8;
+        }
+
+        .hero-overlay-2 {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, hsla(210, 100%, 99%, 0.2), transparent, hsla(210, 100%, 99%, 0.1));
+        }
+
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 0.5rem;
+            height: 0.5rem;
+            background: hsla(188, 100%, 45%, 0.3);
+            border-radius: 50%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .hero-badge {
+            background: hsla(210, 100%, 99%, 0.1);
+            border: 1px solid var(--primary-glow);
+            color: var(--primary-foreground);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: bold;
+            color: var(--primary-foreground);
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-gradient-text {
+            display: block;
+            background: var(--data-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(1.125rem, 3vw, 1.5rem);
+            color: hsla(210, 100%, 98%, 0.9);
+            max-width: 48rem;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 640px) {
+            .hero-actions {
+                flex-direction: row;
+                justify-content: center;
+            }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-hero {
+            background: hsla(210, 100%, 99%, 0.1);
+            border: 1px solid hsla(200, 100%, 45%, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        .card-content {
+            padding: 1rem;
+        }
+
+        .card-header {
+            padding: 1.5rem 1.5rem 0.75rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card {
+            text-align: center;
+        }
+
+        .stat-icon {
+            width: 2rem;
+            height: 2rem;
+            margin: 0 auto 0.5rem;
+            color: var(--accent);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-foreground);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: hsla(210, 100%, 98%, 0.8);
+        }
+
+        /* Dashboard Styles */
+        .dashboard {
+            padding: 4rem 0;
+            background: var(--background);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: bold;
+            color: var(--ocean-deep);
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--muted-foreground);
+            max-width: 48rem;
+            margin: 0 auto;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .status-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .status-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        .status-card {
+            text-align: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+
+        .status-accent { background: hsla(188, 100%, 45%, 0.05); }
+        .status-coral { background: hsla(14, 100%, 57%, 0.1); }
+        .status-seaweed { background: hsla(140, 100%, 25%, 0.1); }
+        .status-primary { background: hsla(214, 88%, 27%, 0.1); }
+        .status-ocean { background: hsla(200, 100%, 45%, 0.2); }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .modules-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .modules-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .module-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .module-card:hover {
+            transform: translateY(-0.25rem);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .module-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .module-card:hover .module-icon {
+            transform: scale(1.1);
+        }
+
+        .module-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .module-description {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+        }
+
+        .module-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 0.75rem;
+            background: hsla(210, 40%, 96%, 0.5);
+            border-radius: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--ocean-medium);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-default {
+            background: var(--primary);
+            color: var(--primary-foreground);
+            flex: 1;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--foreground);
+            flex: 1;
+        }
+
+        .btn-outline:hover {
+            background: var(--muted);
+        }
+
+        /* Data Visualization */
+        .data-viz {
+            padding: 4rem 0;
+            background: var(--surface-gradient);
+        }
+
+        .viz-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .viz-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .temp-chart {
+            height: 8rem;
+            background: linear-gradient(to top, hsla(14, 100%, 57%, 0.2), hsla(14, 100%, 57%, 0.05));
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .ph-chart {
+            height: 8rem;
+            background: linear-gradient(to top, hsla(188, 100%, 45%, 0.2), hsla(188, 100%, 45%, 0.05));
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .chart-value {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chart-label {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: var(--muted);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 0.25rem;
+            width: 68%;
+            transition: width 0.3s ease;
+        }
+
+        .biodiversity-circle {
+            position: relative;
+            width: 6rem;
+            height: 6rem;
+            margin: 0 auto;
+        }
+
+        .circle-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid var(--muted);
+        }
+
+        .circle-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid var(--seaweed);
+            border-top: 8px solid transparent;
+            border-right: 8px solid transparent;
+            transform: rotate(-90deg);
+        }
+
+        .circle-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--seaweed);
+        }
+
+        .map-container {
+            height: 16rem;
+            background: linear-gradient(135deg, var(--ocean-surface), hsla(200, 100%, 45%, 0.2), hsla(214, 88%, 27%, 0.1));
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .data-points {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            padding: 2rem;
+            opacity: 0.7;
+        }
+
+        .data-point {
+            width: 1rem;
+            height: 1rem;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .legend-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+        }
+
+        .legend-text {
+            font-size: 0.875rem;
+            color: var(--ocean-deep);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive utilities */
+        @media (max-width: 767px) {
+            .md-hidden {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .lg-hidden {
+                display: none;
+            }
+        }
+
+        /* SVG Icons */
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            fill: currentColor;
+        }
+
+        .icon-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .icon-lg {
+            width: 2rem;
+            height: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="#" class="logo">
+                    <div class="logo-icon ocean-gradient">
+                        <svg class="icon animate-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 6S3 3 6 3s4 3 4 3 1-3 4-3 4 3 4 3"/>
+                            <path d="M2 12s1-3 4-3 4 3 4 3 1-3 4-3 4 3 4 3"/>
+                            <path d="M2 18s1-3 4-3 4 3 4 3 1-3 4-3 4 3 4 3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>AQUANEXX</h1>
+                        <div class="badge">Marine Decision Support</div>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="nav">
+                    <a href="#" class="nav-link active">Home</a>
+                    <a href="#" class="nav-link">Data Collection</a>
+                    <a href="#" class="nav-link">Taxonomic AI</a>
+                    <a href="#" class="nav-link">eDNA Analysis</a>
+                    <a href="#" class="nav-link">Otolith Analysis</a>
+                    <a href="#" class="nav-link">Digital Twin</a>
+                    <a href="#" class="nav-link">Analytics</a>
+                </nav>
+
+                <!-- Desktop Actions -->
+                <div class="header-actions">
+                    <button class="btn btn-ghost">Login</button>
+                    <button class="btn btn-glow">Get Started</button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <svg class="icon" id="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="4" x2="20" y1="6" y2="6"/>
+                        <line x1="4" x2="20" y1="12" y2="12"/>
+                        <line x1="4" x2="20" y1="18" y2="18"/>
+                    </svg>
+                    <svg class="icon hidden" id="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m18 6-12 12"/>
+                        <path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <nav class="mobile-nav">
+                    <a href="#" class="mobile-nav-link active">Home</a>
+                    <a href="#" class="mobile-nav-link">Data Collection</a>
+                    <a href="#" class="mobile-nav-link">Taxonomic AI</a>
+                    <a href="#" class="mobile-nav-link">eDNA Analysis</a>
+                    <a href="#" class="mobile-nav-link">Otolith Analysis</a>
+                    <a href="#" class="mobile-nav-link">Digital Twin</a>
+                    <a href="#" class="mobile-nav-link">Analytics</a>
+                </nav>
+                <div style="padding-top: 1rem; border-top: 1px solid hsla(200, 100%, 45%, 0.2); margin-top: 1rem;">
+                    <button class="btn btn-ghost" style="width: 100%; margin-bottom: 0.5rem;">Login</button>
+                    <button class="btn btn-glow" style="width: 100%;">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-overlay-2"></div>
+        
+        <!-- Floating particles -->
+        <div class="particles" id="particles"></div>
+
+        <!-- Content -->
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Real-time Marine Intelligence
+            </div>
+            
+            <h1>
+                Advanced Marine
+                <span class="hero-gradient-text">Decision Support</span>
+            </h1>
+            
+            <p>
+                Harness satellite data, sensor networks, and AI-powered insights to make informed decisions 
+                about our marine ecosystems in real-time.
+            </p>
+
+            <div class="hero-actions">
+                <button class="btn btn-glow btn-lg">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    Launch Platform
+                </button>
+                <button class="btn btn-lg" style="background: hsla(210, 100%, 98%, 0.1); color: var(--primary-foreground); border: 1px solid hsla(200, 100%, 45%, 0.3);">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="m19 9-5 5-4-4-3 3"/>
+                    </svg>
+                    View Analytics
+                </button>
+            </div>
+
+            <!-- Quick stats -->
+            <div class="stats-grid">
+                <div class="card card-hero">
+                    <div class="card-content stat-card">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        </svg>
+                        <div class="stat-value">150+</div>
+                        <div class="stat-label">Active Satellites</div>
+                    </div>
+                </div>
+                <div class="card card-hero">
+                    <div class="card-content stat-card">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                            <path d="m21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                        </svg>
+                        <div class="stat-value">2.4TB</div>
+                        <div class="stat-label">Data Processed</div>
+                    </div>
+                </div>
+                <div class="card card-hero">
+                    <div class="card-content stat-card">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.51 2.51 0 0 1-2.13-3.23 3 3 0 0 1-.67-5.5 2.5 2.5 0 0 1 1.32-4.24 3 3 0 0 1 2.96-4.08 2.5 2.5 0 0 1 4.96.44c0-.21.03-.41.09-.61A2.5 2.5 0 0 1 16.5 4c.16 0 .31.02.46.05a2.5 2.5 0 0 1 4.96.44v15a2.5 2.5 0 0 1-2.96 2.46 3 3 0 0 1-2.96-2.46 2.5 2.5 0 0 1-1.32-.24A3 3 0 0 1 12 16.5V4.5c0-.21-.03-.41-.09-.61z"/>
+                        </svg>
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">AI Accuracy</div>
+                    </div>
+                </div>
+                <div class="card card-hero">
+                    <div class="card-content stat-card">
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+                        </svg>
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Species Tracked</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Integrated Marine Intelligence Platform</h2>
+                <p class="section-description">
+                    Monitor, analyze, and predict marine ecosystem behavior through our comprehensive suite of data collection and AI-powered analysis tools.
+                </p>
+            </div>
+
+            <!-- System Status -->
+            <div class="card" style="margin-bottom: 2rem; border-color: hsla(188, 100%, 45%, 0.2);">
+                <div class="card-header">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg class="icon" style="color: var(--accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                            <h3 class="card-title">System Status</h3>
+                        </div>
+                        <div class="badge" style="background: hsla(188, 100%, 45%, 0.1);">
+                            All Systems Operational
+                        </div>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="status-grid">
+                        <div class="status-card status-accent">
+                            <div class="status-value" style="color: var(--accent);">142</div>
+                            <div class="status-label">Active Sensors</div>
+                        </div>
+                        <div class="status-card status-coral">
+                            <div class="status-value" style="color: var(--coral);">23</div>
+                            <div class="status-label">AUVs Deployed</div>
+                        </div>
+                        <div class="status-card status-seaweed">
+                            <div class="status-value" style="color: var(--seaweed);">8.2TB</div>
+                            <div class="status-label">Data Today</div>
+                        </div>
+                        <div class="status-card status-primary">
+                            <div class="status-value" style="color: var(--primary);">98.7%</div>
+                            <div class="status-label">AI Confidence</div>
+                        </div>
+                        <div class="status-card status-accent">
+                            <div class="status-value" style="color: var(--accent);">1,247</div>
+                            <div class="status-label">Species ID'd</div>
+                        </div>
+                        <div class="status-card status-ocean">
+                            <div class="status-value" style="color: var(--ocean-medium);">Live</div>
+                            <div class="status-label">Digital Twin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Module Cards -->
+            <div class="modules-grid">
+                <!-- Data Collection Hub -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">Data Collection Hub</div>
+                                    <div class="module-description">Satellite, sensor, and AUV data aggregation</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">active</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">156</div>
+                                <div class="metric-label">Data Sources</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">99.8%</div>
+                                <div class="metric-label">Uptime</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Analytics Engine -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.51 2.51 0 0 1-2.13-3.23 3 3 0 0 1-.67-5.5 2.5 2.5 0 0 1 1.32-4.24 3 3 0 0 1 2.96-4.08 2.5 2.5 0 0 1 4.96.44c0-.21.03-.41.09-.61A2.5 2.5 0 0 1 16.5 4c.16 0 .31.02.46.05a2.5 2.5 0 0 1 4.96.44v15a2.5 2.5 0 0 1-2.96 2.46 3 3 0 0 1-2.96-2.46 2.5 2.5 0 0 1-1.32-.24A3 3 0 0 1 12 16.5V4.5c0-.21-.03-.41-.09-.61z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">AI Analytics Engine</div>
+                                    <div class="module-description">Multi-source data correlation and insights</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(14, 100%, 57%, 0.1); color: var(--coral);">processing</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">12</div>
+                                <div class="metric-label">Models Running</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">2.4K</div>
+                                <div class="metric-label">Predictions/hr</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Taxonomic Classification -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">Taxonomic Classification</div>
+                                    <div class="module-description">Species identification and tracking</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">active</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">15K+</div>
+                                <div class="metric-label">Species DB</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">94.2%</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- eDNA Analysis System -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                        <path d="m21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">eDNA Analysis System</div>
+                                    <div class="module-description">Environmental DNA processing and analysis</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">active</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">340</div>
+                                <div class="metric-label">Samples/day</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">2.1hr</div>
+                                <div class="metric-label">Processing Time</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Otolith Morphology -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6.5 12c.94-3.46 4.94-6 8.5-6s7.56 2.54 8.5 6c-.94 3.46-4.94 6-8.5 6s-7.56-2.54-8.5-6Z"/>
+                                        <circle cx="15" cy="12" r="3"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">Otolith Morphology</div>
+                                    <div class="module-description">Fish age and growth pattern analysis</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(210, 40%, 96%, 0.5); color: var(--muted-foreground);">standby</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">8.9K</div>
+                                <div class="metric-label">Specimens</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">45</div>
+                                <div class="metric-label">Age Classes</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Twin Engine -->
+                <div class="card module-card">
+                    <div class="card-header">
+                        <div class="module-header">
+                            <div class="module-info">
+                                <div class="module-icon ocean-gradient">
+                                    <svg class="icon" style="color: var(--primary-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M2 12h20"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="module-title">Digital Twin Engine</div>
+                                    <div class="module-description">Real-time ecosystem simulation</div>
+                                </div>
+                            </div>
+                            <div class="badge" style="background: hsla(14, 100%, 57%, 0.1); color: var(--coral);">processing</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="module-metrics">
+                            <div class="metric-card">
+                                <div class="metric-value">23</div>
+                                <div class="metric-label">Scenarios</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value">1km²</div>
+                                <div class="metric-label">Resolution</div>
+                            </div>
+                        </div>
+                        <div class="module-actions">
+                            <button class="btn btn-default">View Details</button>
+                            <button class="btn btn-outline">Configure</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Cards -->
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="display: grid; gap: 1.5rem;">
+                    @media (min-width: 768px) {
+                        <div style="grid-template-columns: repeat(2, 1fr);">
+                </div>
+                <div class="card" style="border: 2px dashed hsla(188, 100%, 45%, 0.5);">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg class="icon" style="color: var(--accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <path d="M9 9h6v6H9z"/>
+                                <path d="m3 9 3-3"/>
+                                <path d="m21 9-3-3"/>
+                                <path d="m3 15 3 3"/>
+                                <path d="m21 15-3 3"/>
+                            </svg>
+                            <h3 class="card-title">n8n Automation Workflows</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Data Pipeline Automation</span>
+                                <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">Running</div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Alert Notification System</span>
+                                <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">Active</div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Report Generation</span>
+                                <div class="badge" style="background: hsla(140, 100%, 25%, 0.2); color: var(--seaweed);">Scheduled</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" style="width: 100%;">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Configure Workflows
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card" style="border: 2px dashed hsla(214, 88%, 27%, 0.5);">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3v18h18"/>
+                                <path d="m19 9-5 5-4-4-3 3"/>
+                            </svg>
+                            <h3 class="card-title">Power BI Integration</h3>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Real-time Dashboards</span>
+                                <div class="badge" style="background: hsla(214, 88%, 27%, 0.1); color: var(--primary);">Live</div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Historical Trends</span>
+                                <div class="badge" style="background: hsla(214, 88%, 27%, 0.1); color: var(--primary);">Updated</div>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: hsla(210, 40%, 96%, 0.3); border-radius: var(--radius);">
+                                <span style="font-size: 0.875rem;">Custom Reports</span>
+                                <div class="badge" style="background: hsla(14, 100%, 57%, 0.2); color: var(--coral);">Ready</div>
+                            </div>
+                        </div>
+                        <button class="btn" style="width: 100%; background: var(--data-gradient); color: var(--primary-foreground);">
+                            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 3v18h18"/>
+                                <path d="m19 9-5 5-4-4-3 3"/>
+                            </svg>
+                            Launch Power BI
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Visualization Section -->
+    <section class="data-viz">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Real-time Marine Data Insights</h2>
+                <p class="section-description">
+                    Live visualizations and trend analysis from our global network of marine sensors and satellite feeds.
+                </p>
+            </div>
+
+            <div class="viz-grid">
+                <!-- Temperature Card -->
+                <div class="card">
+                    <div class="card-header" style="padding-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg class="icon" style="color: var(--coral);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>
+                                </svg>
+                                <span class="card-title">Ocean Temperature</span>
+                            </div>
+                            <div class="badge" style="background: hsla(14, 100%, 57%, 0.1); color: var(--coral);">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m3 8 4-4 4 4"/>
+                                    <path d="M7 4v16"/>
+                                </svg>
+                                +0.3°C
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="temp-chart">
+                            <div class="text-center">
+                                <div class="chart-value" style="color: var(--coral);">18.7°C</div>
+                                <div class="chart-label">Current Average</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center; margin-top: 1rem;">
+                            <div>
+                                <div style="font-size: 0.875rem; font-weight: 600;">16.2°C</div>
+                                <div style="font-size: 0.75rem; color: var(--muted-foreground);">Min</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; font-weight: 600;">22.1°C</div>
+                                <div style="font-size: 0.75rem; color: var(--muted-foreground);">Max</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; font-weight: 600;">18.7°C</div>
+                                <div style="font-size: 0.75rem; color: var(--muted-foreground);">Avg</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- pH Levels Card -->
+                <div class="card">
+                    <div class="card-header" style="padding-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg class="icon" style="color: var(--accent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 6S3 3 6 3s4 3 4 3 1-3 4-3 4 3 4 3"/>
+                                    <path d="M2 12s1-3 4-3 4 3 4 3 1-3 4-3 4 3 4 3"/>
+                                    <path d="M2 18s1-3 4-3 4 3 4 3 1-3 4-3 4 3 4 3"/>
+                                </svg>
+                                <span class="card-title">pH Levels</span>
+                            </div>
+                            <div class="badge" style="background: hsla(188, 100%, 45%, 0.1); color: var(--accent);">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                </svg>
+                                Stable
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="ph-chart">
+                            <div class="text-center">
+                                <div class="chart-value" style="color: var(--accent);">8.12</div>
+                                <div class="chart-label">Current pH</div>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="text-center" style="font-size: 0.875rem; color: var(--muted-foreground);">
+                            Optimal Range: 7.8 - 8.3
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biodiversity Card -->
+                <div class="card">
+                    <div class="card-header" style="padding-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg class="icon" style="color: var(--seaweed);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                                </svg>
+                                <span class="card-title">Biodiversity Index</span>
+                            </div>
+                            <div class="badge" style="background: hsla(140, 100%, 25%, 0.1); color: var(--seaweed);">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m3 8 4-4 4 4"/>
+                                    <path d="M7 4v16"/>
+                                </svg>
+                                +12%
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div style="height: 8rem; display: flex; align-items: center; justify-content: center;">
+                            <div class="biodiversity-circle">
+                                <div class="circle-bg"></div>
+                                <div class="circle-progress"></div>
+                                <div class="circle-value">74%</div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 0.875rem; font-weight: 600; margin-top: 1rem;">1,247 Species Detected</div>
+                            <div style="font-size: 0.75rem; color: var(--muted-foreground);">Last 24 hours</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geographic Distribution -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="card-header">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span class="card-title">Global Marine Data Coverage</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="map-container">
+                        <div class="data-points">
+                            <div class="data-point" style="animation-delay: 0s;"></div>
+                            <div class="data-point" style="animation-delay: 0.2s;"></div>
+                            <div class="data-point" style="animation-delay: 0.4s;"></div>
+                            <div class="data-point" style="animation-delay: 0.6s;"></div>
+                            <div class="data-point" style="animation-delay: 0.8s;"></div>
+                            <div class="data-point" style="animation-delay: 1s;"></div>
+                            <div class="data-point" style="animation-delay: 1.2s;"></div>
+                            <div class="data-point" style="animation-delay: 1.4s;"></div>
+                            <div class="data-point" style="animation-delay: 1.6s;"></div>
+                            <div class="data-point" style="animation-delay: 1.8s;"></div>
+                            <div class="data-point" style="animation-delay: 2s;"></div>
+                            <div class="data-point" style="animation-delay: 2.2s;"></div>
+                            <div class="data-point" style="animation-delay: 2.4s;"></div>
+                            <div class="data-point" style="animation-delay: 2.6s;"></div>
+                            <div class="data-point" style="animation-delay: 2.8s;"></div>
+                            <div class="data-point" style="animation-delay: 3s;"></div>
+                        </div>
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: var(--accent);"></div>
+                                <span class="legend-text">Active Data Points: 1,247</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: var(--coral);"></div>
+                                <span class="legend-text">Alert Zones: 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="btn btn-lg" style="background: var(--ocean-gradient); color: var(--primary-foreground); box-shadow: var(--shadow-ocean);">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="m19 9-5 5-4-4-3 3"/>
+                    </svg>
+                    View Advanced Analytics
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            mobileMenu.classList.toggle('active');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle animate-float';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                particle.style.animationDuration = (3 + Math.random() * 2) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize particles when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            // Add smooth scrolling to anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add hover effects to cards
+            document.querySelectorAll('.module-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-0.25rem)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!menuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                mobileMenu.classList.remove('active');
+                document.getElementById('menu-icon').classList.remove('hidden');
+                document.getElementById('close-icon').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
